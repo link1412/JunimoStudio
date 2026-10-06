@@ -1,0 +1,8 @@
+{
+  "Name": "Junimo Orchestra: Custom",
+  "Author": "link1412",
+  "Version": "1.0.0",
+  "Description": "Your own pictures and SoundFonts for Junimo Orchestra (see README.txt). 你自己的贴图和音色库（见 README.txt）。",
+  "UniqueID": "link1412.JunimoOrchestra.Custom",
+  "ContentPackFor": { "UniqueID": "link1412.JunimoOrchestra" }
+}

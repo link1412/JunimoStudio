@@ -1,0 +1,5 @@
+bin/
+obj/
+*.sf2
+.DS_Store
+__pycache__/

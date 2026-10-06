@@ -1,0 +1,13 @@
+{
+  "Name": "Junimo Orchestra",
+  "Author": "link1412",
+  "Version": "1.0.0",
+  "Description": "17 cute instrument blocks that play every General MIDI instrument. Right-click a block to tune it.",
+  "UniqueID": "link1412.JunimoOrchestra",
+  "EntryDll": "JunimoOrchestra.dll",
+  "MinimumApiVersion": "4.0.0",
+  "UpdateKeys": [ "GitHub:link1412/JunimoStudio" ],
+  "Dependencies": [
+    { "UniqueID": "spacechase0.GenericModConfigMenu", "IsRequired": false }
+  ]
+}

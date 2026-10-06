@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>JunimoOrchestra</AssemblyName>
+    <RootNamespace>JunimoOrchestra</RootNamespace>
+    <Version>1.0.0</Version>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>12</LangVersion> <!-- C# 13+/14 span overload rules break MeltySynth (in the engine) -->
+    <Nullable>enable</Nullable>
+    <EnableHarmony>true</EnableHarmony>
+    <!-- the engine (music/engine: performer, mixer, MeltySynth) ships next to the mod as Junimo.Engine.dll -->
+    <!-- keep design sources out of the deployed mod folder -->
+    <!-- and the large modern band's working sheet (32x32, too wide for blocks side by side: nothing draws it yet) -->
+    <IgnoreModFilePatterns>\.py$, \.md$, ^art[/\\], ^docs[/\\], ^mockups[/\\], ^assets[/\\]textures[/\\]junimo_modern\.png$</IgnoreModFilePatterns>
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.4.0" />
+    <!-- SMAPI's own Json.NET, for [JsonIgnore] in ModConfig -->
+    <Reference Include="Newtonsoft.Json" HintPath="$(GamePath)\smapi-internal\Newtonsoft.Json.dll" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\music\engine\src\Engine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="assets\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="i18n\*.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="LICENSE" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- The built-in SoundFont isn't in the repo (see music/engine/README.md). assets/soundfonts/GeneralUser-GS.sf2 links
+       to the engine's copy; ModBuildConfig zips a subfolder's files only when they're in the project folder too. -->
+  <Target Name="RequireSoundFont" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <Error Condition="!Exists('assets\soundfonts\GeneralUser-GS.sf2')"
+           Text="assets/soundfonts/GeneralUser-GS.sf2 is missing, the release zip would have no sound: mkdir -p assets/soundfonts, then ln -s ../../../music/engine/assets/GeneralUser-GS.sf2 assets/soundfonts/" />
+  </Target>
+
+  <!-- The release zip also gets custom-pack/ as [JO] Custom: the content pack players put their own SoundFonts and
+       pictures in (see src/Game/CustomPacks.cs), a folder of its own beside the mod's, so an update, which replaces the
+       mod's folder, never touches it. (ModBuildConfig's own ContentPacks would put both in one parent folder.) -->
+  <Target Name="BundleCustomPack" AfterTargets="AfterBuild" Condition="'$(Configuration)' == 'Release' And '$(EnableModZip)' == 'true'">
+    <PropertyGroup>
+      <ReleaseZip>$(ModZipPath)$(ModFolderName) $(Version).zip</ReleaseZip>
+      <ReleaseStage>$(IntermediateOutputPath)release-zip\</ReleaseStage>
+      <CustomPackDir>$(ReleaseStage)[JO] Custom\</CustomPackDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <CustomPackFile Include="custom-pack\**\*" />
+    </ItemGroup>
+    <RemoveDir Directories="$(ReleaseStage)" />
+    <Unzip SourceFiles="$(ReleaseZip)" DestinationFolder="$(ReleaseStage)" />
+    <Copy SourceFiles="@(CustomPackFile)" DestinationFiles="@(CustomPackFile->'$(CustomPackDir)%(RecursiveDir)%(Filename)%(Extension)')" />
+    <MakeDir Directories="$(CustomPackDir)textures;$(CustomPackDir)soundfonts" />
+    <ZipDirectory SourceDirectory="$(ReleaseStage)" DestinationFile="$(ReleaseZip)" Overwrite="true" />
+  </Target>
+
+</Project>

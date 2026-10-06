@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>12</LangVersion> <!-- C# 13+/14 span overload rules break MeltySynth -->
+    <Nullable>enable</Nullable>
+    <AssemblyName>Junimo.Engine</AssemblyName>
+    <RootNamespace>Junimo.Engine</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Engine.Tests" />
+  </ItemGroup>
+</Project>
